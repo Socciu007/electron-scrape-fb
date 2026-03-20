@@ -81,10 +81,10 @@ async function main() {
       let page = 0
       while (hasGroupData) {
         let urlGroup = groupFb?.map((g) => g?.url)
-        // for (let i = urlGroup.length - 1; i > 0; i--) {
-        //   const j = Math.floor(Math.random() * (i + 1));
-        //   [urlGroup[i], urlGroup[j]] = [urlGroup[j], urlGroup[i]];
-        // }
+        for (let i = urlGroup.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [urlGroup[i], urlGroup[j]] = [urlGroup[j], urlGroup[i]];
+        }
         const urlGroupData = await fetchGroupData(page) // Call the function to fetch group data
         urlGroup = urlGroup.concat(urlGroupData)
         // console.log('Page: ', page + 1)
@@ -141,7 +141,9 @@ async function main() {
             });
 
             // Add urlFacebook to dataUnique
-            const dataSave = dataUnique.map(item => ({ ...item, urlFacebook: `https://www.facebook.com/${item.idAccount}` })).filter(item => !(item.contactUs === '' || item.contactUs === null));
+            const dataSave = dataUnique
+              .map(item => ({ ...item, urlFacebook: `https://www.facebook.com/${item.idAccount}` }))
+              .filter(item => !(item.contactUs === '' || item.contactUs === null || item.content?.toLowerCase()?.includes('tuyen')));
             console.log('dataAfterFilter: ', dataSave?.length)
 
             if (!!dataSave?.length) {
@@ -221,7 +223,7 @@ async function main() {
           }
           console.log('urlAccess: ', urlAccess)
           if (!urlAccess.includes('https://www.facebook.com')) continue;
-          await window2.loadURL(`${urlAccess.replace(/\/$/, "")}/search/?q=whatsapp%20group`) ///search/?q=zalo
+          await window2.loadURL(`${urlAccess.replace(/\/$/, "")}/search/?q=whatsapp%20group%20link`) ///search/?q=zalo
           await delay(5000)
 
           // Scrape data from browser
@@ -740,7 +742,7 @@ const scrapeDataWhatsapp = () => {
         if (!textContent) textContent = elementArr[i]?.querySelectorAll('.x78zum5.xdt5ytf.xz62fqu.x16ldp7u')?.[1]?.textContent
         if (!textContent) textContent = elementArr[i]?.querySelector('.x6s0dn4.x78zum5.xdt5ytf.x5yr21d.xl56j7k.x10l6tqk.x17qophe.x13vifvy.xh8yej3')?.textContent
         if (!textContent) textContent = elementArr[i]?.querySelector('div.x9f619.x2lah0s.x1n2onr6.x78zum5.x1iyjqo2.x1t2pt76.x1lspesw > div > div > div > div > div > div:nth-child(5) > div > div > div > div > div > div > div > div > div > div > div.html-div.xdj266r.x14z9mp.xat24cr.x1lziwak.xexx8yu.xyri2b.x18d9i69.x1c1uobl > div > div > div:nth-child(3) > div > div > div > div')?.textContent
-        const textAccount = elementArr[i]?.querySelector('.html-h3')?.textContent || elementArr[i]?.querySelector('.html-strong')?.textContent || '0'
+        const textAccount = elementArr[i]?.querySelector('.html-h3')?.textContent || elementArr[i]?.querySelector('div[data-ad-rendering-role="profile_name"]')?.textContent || '0'
         const textIdAccount = elementArr[i]?.querySelector('.html-h3 a')?.href?.split('/')?.[6] || elementArr[i]?.querySelector('.xjp7ctv > a')?.href?.split('/')?.[6] || ''
         const urlAvatar = elementArr[i]?.querySelector('g > image')?.href?.baseVal || ''
         await delay(1000)
