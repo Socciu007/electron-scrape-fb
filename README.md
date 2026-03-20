@@ -19,9 +19,9 @@ To clone and run this repository you'll need [Git](https://git-scm.com) and [Nod
 
 ```bash
 # Clone this repository
-git clone https://github.com/Socciu007/scrape-fb-robot.git
+git clone https://github.com/Socciu007/electron-scrape-fb.git
 # Go into the repository
-cd scrape-fb-robot
+cd electron-scrape-fb
 # Install dependencies
 npm install
 # Run the app
