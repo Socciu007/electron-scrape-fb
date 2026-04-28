@@ -144,11 +144,12 @@ async function main() {
             const dataSave = dataUnique
               .map(item => ({ ...item, urlFacebook: `https://www.facebook.com/${item.idAccount}` }))
               .filter(item => !(item.contactUs === '' || item.contactUs === null || item.content?.toLowerCase()?.includes('tuyen')));
-            console.log('dataAfterFilter: ', dataSave?.length)
+            console.log('dataAfterFilter: ', dataSave)
 
             if (!!dataSave?.length) {
               for (const item of dataSave) {
                 if (!containsPort(item.content.toLowerCase(), PORT_LIST)) continue;
+                console.log('item of dataSave: ', item)
                 const response = await saveDataFb(item)
                 console.log('Save data fb: ', response)
               }

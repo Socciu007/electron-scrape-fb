@@ -121,7 +121,7 @@ const serviceGemini = async (dataCrawl, typeUse) => {
     const result = await axios.post('http://ai.dadaex.cn/backapi/chatGpt/chatAll', {
       content: prompt.content,
       modelType: '2',
-      modeName: 'gemini-2.0-flash'
+      modeName: 'gemini-2.5-flash'
     });
     const objData = result?.data?.data?.res1?.kwargs?.content;
     let cleanObjData = null;
