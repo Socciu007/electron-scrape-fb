@@ -614,7 +614,8 @@ const scrapeDataFromGroupPage = (urlAccess, urlOriginal) => {
 
       // Get text of group name
       await delay(1000)
-      const groupName = document?.querySelector('.x1e56ztr.x1xmf6yo > [dir="auto"] > span[dir="auto"] > a[role="link"]')?.textContent
+      const groupName = document?.querySelector('.x1e56ztr.x1xmf6yo > [dir="auto"] > span[dir="auto"] > span')?.textContent ||
+        document?.querySelector('.x1e56ztr.x1xmf6yo > [dir="auto"] > span[dir="auto"]')?.textContent
       // const groupName = elementGroupName?.split(' ')?.slice(1)?.join(' ')
 
       await delay(2000)
@@ -648,7 +649,7 @@ const scrapeDataFromGroupPage = (urlAccess, urlOriginal) => {
         if (!textContent) textContent = elementArr[i]?.querySelectorAll('.x78zum5.xdt5ytf.xz62fqu.x16ldp7u')?.[1]?.textContent
         if (!textContent) textContent = elementArr[i]?.querySelector('.x6s0dn4.x78zum5.xdt5ytf.x5yr21d.xl56j7k.x10l6tqk.x17qophe.x13vifvy.xh8yej3')?.textContent
         if (!textContent) textContent = elementArr[i]?.querySelector('div.x9f619.x2lah0s.x1n2onr6.x78zum5.x1iyjqo2.x1t2pt76.x1lspesw > div > div > div > div > div > div:nth-child(5) > div > div > div > div > div > div > div > div > div > div > div.html-div.xdj266r.x14z9mp.xat24cr.x1lziwak.xexx8yu.xyri2b.x18d9i69.x1c1uobl > div > div > div:nth-child(3) > div > div > div > div')?.textContent
-        const textAccount = elementArr[i]?.querySelector('.html-h3')?.textContent || elementArr[i]?.querySelector('.html-strong')?.textContent || '0'
+        const textAccount = elementArr[i]?.querySelector('b')?.textContent || elementArr[i]?.querySelector('.html-strong')?.textContent || '0'
         const textIdAccount = elementArr[i]?.querySelector('.html-h3 a')?.href?.split('/')?.[6] || elementArr[i]?.querySelector('.xjp7ctv > a')?.href?.split('/')?.[6] || ''
         const urlAvatar = elementArr[i]?.querySelector('g > image')?.href?.baseVal || ''
         await delay(1000)
