@@ -56,7 +56,7 @@ const saveDataWhatsapp = async (data) => {
     console.log('Error saving data to database: ', error);
     return false;
   }
-} 
+}
 
 // Call api to save data to database (ebvn2)
 const saveDataToDatabase = async (data) => {
@@ -80,6 +80,18 @@ const saveMemberToVn2 = async (data) => {
     return response?.data;
   } catch (error) {
     console.log('Error saving data to database: ', error);
+    return false;
+  }
+}
+
+// Call api to delete member by idAccount (ebvn2)
+const deleteMemberByIdAccount = async (idAccount) => {
+  try {
+    // https://vn2.dadaex.cn/api/moneyapi/memberFb
+    const response = await axios.delete(`https://vn2.dadaex.cn/api/moneyapi/memberFb/${idAccount}`);
+    return response?.data;
+  } catch (error) {
+    console.log('Error deleting member: ', error);
     return false;
   }
 }
@@ -137,7 +149,7 @@ const serviceGemini = async (dataCrawl, typeUse) => {
     const result = await axios.post('http://ai.dadaex.cn/backapi/chatGpt/chatAll', {
       content: prompt.content,
       modelType: '2',
-      modeName: 'gemini-3.5-flash'
+      modeName: 'gemini-2.5-flash-lite'
     });
     const objData = result?.data?.data?.res1?.kwargs?.content;
     let cleanObjData = null;
@@ -160,5 +172,6 @@ module.exports = {
   saveDataToDatabase,
   serviceGemini,
   saveDataWhatsapp,
-  saveMemberToVn2
+  saveMemberToVn2,
+  deleteMemberByIdAccount
 }

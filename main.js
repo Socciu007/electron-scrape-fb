@@ -4,7 +4,7 @@ const path = require('node:path')
 const jsQR = require('jsqr');
 const os = require('os');
 const axios = require('axios');
-const { saveDataFb, fetchGroupData, saveDataWhatsapp, serviceGemini, saveMemberToVn2 } = require('./services');
+const { saveDataFb, fetchGroupData, saveDataWhatsapp, serviceGemini, saveMemberToVn2, deleteMemberByIdAccount } = require('./services');
 const { timeTaskScrapeFb } = require('./cron');
 const groupFb = require('./mock/groupFb');
 let PORT_LIST = [
@@ -181,7 +181,7 @@ async function main() {
       console.log('p: ', p)
 
       if (p) {
-        for (let i = 170; i <= p; i++) {
+        for (let i = 1; i <= p; i++) {
           console.log('Get info member of page: ', i)
           const data = await getInfoMember(wd1, i)
           console.log('Data: ', data)
@@ -190,7 +190,7 @@ async function main() {
         return
       }
 
-      await wd1.loadURL('https://www.facebook.com/groups/1791293174699616/members') // things_in_common
+      await wd1.loadURL('https://www.facebook.com/groups/1791293174699616/members/things_in_common') // things_in_common
       await delay(5000)
 
       // Scrape data from browser
@@ -280,7 +280,7 @@ async function main() {
     }
 
     // await task1(data[0].account)
-    await Promise.all([runTaskMain(), task1(data[0].account, 1228)]) //runTask1
+    await Promise.all([runTaskMain(), task1(data[0].account)]) //runTask1
   });
 
   // Open the DevTools. (Ctr + Shift + I)
@@ -461,15 +461,18 @@ const getInfoMember = async (wd1, p) => {
       if (!scraped) continue
       const responseGemini = await serviceGemini(scraped, 'scrapeCompany')
       if (!responseGemini || (!responseGemini.contactUs && !responseGemini.zalo && !responseGemini.company)) continue
-      const responseSave = await saveMemberToVn2({
-        ...item,
-        contactUs: responseGemini.contactUs || '',
-        zalo: responseGemini.zalo || '',
-        content: scraped,
-        company: responseGemini.company || '',
-      })
-      console.log('Save member to vn2: ', responseSave)
-      results.push({ idAccount: item.idAccount, contactUs: responseGemini.contactUs || '', zalo: responseGemini.zalo || '', company: responseGemini.company || '', content: scraped, responseSave })
+      if (responseGemini.company) {
+        await saveMemberToVn2({
+          ...item,
+          contactUs: responseGemini.contactUs || '',
+          zalo: responseGemini.zalo || '',
+          content: scraped,
+          company: responseGemini.company || '',
+        })
+      } else {
+        await deleteMemberByIdAccount(item.idAccount)
+      }
+      results.push({ idAccount: item.idAccount, contactUs: responseGemini.contactUs || '', zalo: responseGemini.zalo || '', company: responseGemini.company || '', content: scraped })
     }
 
     return results
@@ -540,8 +543,8 @@ const scrapeMemberGroupPage = () => {
     }
     try {
       await delay(1000)
-      const documentPage = document?.querySelectorAll('[role="list"].html-div')[4]
-      // const documentPage = document?.querySelectorAll('[role="list"]')[2]
+      // const documentPage = document?.querySelectorAll('[role="list"].html-div')[4]
+      const documentPage = document?.querySelectorAll('[role="list"]')[2]
       if (!documentPage) return []
 
       let listItems = documentPage?.querySelectorAll('[role="listitem"]')
