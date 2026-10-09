@@ -7,6 +7,7 @@ const axios = require('axios');
 const { saveDataFb, fetchGroupData, saveDataWhatsapp, serviceGemini, saveMemberToVn2, deleteMemberByIdAccount } = require('./services');
 const { timeTaskScrapeFb } = require('./cron');
 const groupFb = require('./mock/groupFb');
+const { postMemberOfGroupPage } = require('./features');
 let PORT_LIST = [
   "ITALY", "CAMBODIA", "CHINA", "INDONESIA", "MALAYSIA", "MYANMAR",
   "PHILIPPINE", "SINGAPORE", "THAILAND", "VIETNAM",
@@ -165,6 +166,7 @@ async function main() {
       await mainWindow.close()
     };
 
+    // Crawl data from member group page
     const task1 = async (account, p) => {
       const wd1 = await createWindow({ width: 1200, height: 600, x: 0, y: 200, sessionName: account })
       if (!wd1) return;
@@ -190,7 +192,7 @@ async function main() {
         return
       }
 
-      await wd1.loadURL('https://www.facebook.com/groups/1791293174699616/members/things_in_common') // things_in_common
+      await wd1.loadURL('https://www.facebook.com/groups/1791293174699616/members') // things_in_common
       await delay(5000)
 
       // Scrape data from browser
@@ -277,6 +279,38 @@ async function main() {
 
       // Close the window
       await window2.close()
+    }
+
+    // Crawl data member of group page 2
+    const task3 = async (account) => {
+      const wd1 = await createWindow({ width: 1200, height: 600, x: 0, y: 200, sessionName: account })
+      if (!wd1) return;
+      // Load the url of the facebook (Login FB)
+      await wd1.loadURL('https://www.facebook.com/')
+
+      // Check login status
+      const isLogin = await wd1.webContents.executeJavaScript(checkLoginFacebook)
+      if (!isLogin) {
+        await delay(100000)
+        await wd1.close()
+        return
+      };
+
+      await wd1.loadURL('https://www.facebook.com/groups/1791293174699616')
+      await delay(5000)
+
+      // Scrape data from browser
+      const data = await wd1.webContents.executeJavaScript(postMemberOfGroupPage())
+      console.log('Member group page: ', data)
+      if (!!data?.length) {
+        for (const item of data) {
+          if (!item?.content) continue;
+          const responseGemini = await serviceGemini(item.content, 'scrapeCompany')
+          const responseSave = await saveMemberToVn2({ ...item, zalo: zalo || responseGemini?.zalo, contactUs: contactUs || responseGemini?.contactUs, company: responseGemini?.company })
+          console.log('Save member to vn2: ', responseSave)
+        }
+      }
+      // await wd1.close()
     }
 
     // await task1(data[0].account)
@@ -457,10 +491,10 @@ const getInfoMember = async (wd1, p) => {
         return content
       })()`)
 
-      console.log('Member group page: ', scraped)
       if (!scraped) continue
       const responseGemini = await serviceGemini(scraped, 'scrapeCompany')
       if (!responseGemini || (!responseGemini.contactUs && !responseGemini.zalo && !responseGemini.company)) continue
+      console.log('Member group page: ', responseGemini)
       if (responseGemini.company) {
         await saveMemberToVn2({
           ...item,
@@ -470,7 +504,7 @@ const getInfoMember = async (wd1, p) => {
           company: responseGemini.company || '',
         })
       } else {
-        await deleteMemberByIdAccount(item.idAccount)
+        // await deleteMemberByIdAccount(item.idAccount)
       }
       results.push({ idAccount: item.idAccount, contactUs: responseGemini.contactUs || '', zalo: responseGemini.zalo || '', company: responseGemini.company || '', content: scraped })
     }
@@ -543,8 +577,8 @@ const scrapeMemberGroupPage = () => {
     }
     try {
       await delay(1000)
-      // const documentPage = document?.querySelectorAll('[role="list"].html-div')[4]
-      const documentPage = document?.querySelectorAll('[role="list"]')[2]
+      const documentPage = document?.querySelectorAll('[role="list"].html-div')[4]
+      // const documentPage = document?.querySelectorAll('[role="list"]')[2]
       if (!documentPage) return []
 
       let listItems = documentPage?.querySelectorAll('[role="listitem"]')
