@@ -100,7 +100,7 @@ async function main() {
           if (urlAccess.includes('?')) {
             urlAccess = urlAccess.split('?')[0]
           }
-          console.log('urlAccess: ', urlAccess)
+          // console.log('urlAccess: ', urlAccess)
           if (!urlAccess.includes('https://www.facebook.com')) continue;
           await mainWindow.loadURL(`${urlAccess.replace(/\/$/, "")}`) ///search/?q=zalo
           await delay(5000)
@@ -109,7 +109,7 @@ async function main() {
           //scrapeDataFromZalo
           //scrapeDataFromGroupPage
           const data = await mainWindow.webContents.executeJavaScript(scrapeDataFromGroupPage(urlAccess, groupFb?.map((g) => g?.url)))
-          console.log('dataStart: ', data?.length)
+          // console.log('dataStart: ', data?.length)
           if (!data?.length) continue;
           let ipAddress = ''
           const interfaces = os.networkInterfaces();
@@ -149,7 +149,7 @@ async function main() {
             if (!!dataSave?.length) {
               for (const item of dataSave) {
                 if (!containsPort(item.content.toLowerCase(), PORT_LIST)) continue;
-                console.log('item of dataSave: ', item)
+                // console.log('item of dataSave: ', item)
                 const response = await saveDataFb(item)
                 console.log('Save data fb: ', response)
               }
@@ -180,7 +180,6 @@ async function main() {
         await wd1.close()
         return
       };
-      console.log('p: ', p)
 
       if (p) {
         for (let i = 1; i <= p; i++) {
@@ -306,7 +305,7 @@ async function main() {
         for (const item of data) {
           if (!item?.content) continue;
           const responseGemini = await serviceGemini(item.content, 'scrapeCompany')
-          const responseSave = await saveMemberToVn2({ ...item, zalo: zalo || responseGemini?.zalo, contactUs: contactUs || responseGemini?.contactUs, company: responseGemini?.company })
+          const responseSave = await saveMemberToVn2({ ...item, zalo: item?.zalo || responseGemini?.zalo, contactUs: item?.contactUs || responseGemini?.contactUs, company: item?.company || responseGemini?.company })
           console.log('Save member to vn2: ', responseSave)
         }
       }
@@ -314,7 +313,7 @@ async function main() {
     }
 
     // await task1(data[0].account)
-    await Promise.all([runTaskMain(), task1(data[0].account)]) //runTask1
+    await Promise.all([runTaskMain(), task1(data[0].account), task3(data[0].account)]) //runTask1
   });
 
   // Open the DevTools. (Ctr + Shift + I)
