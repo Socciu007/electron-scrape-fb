@@ -196,11 +196,11 @@ async function main() {
 
       // Scrape data from browser
       const data = await wd1.webContents.executeJavaScript(scrapeMemberGroupPage())
-      console.log('Member group page: ', data)
+      console.log('Member group page: ', data?.length)
       if (!!data?.length) {
         for (const item of data) {
           const responseSave = await saveMemberToVn2({ ...item })
-          console.log('Save member to vn2: ', responseSave)
+          console.log('Save member to vn21: ', responseSave)
         }
       }
       // await wd1.close()
@@ -300,13 +300,13 @@ async function main() {
 
       // Scrape data from browser
       const data = await wd1.webContents.executeJavaScript(postMemberOfGroupPage())
-      console.log('Member group page: ', data)
+      console.log('Member group page: ', data?.length)
       if (!!data?.length) {
         for (const item of data) {
           if (!item?.content) continue;
           const responseGemini = await serviceGemini(item.content, 'scrapeCompany')
           const responseSave = await saveMemberToVn2({ ...item, zalo: item?.zalo || responseGemini?.zalo, contactUs: item?.contactUs || responseGemini?.contactUs, company: item?.company || responseGemini?.company })
-          console.log('Save member to vn2: ', responseSave)
+          console.log('Save member to vn23: ', responseSave)
         }
       }
       // await wd1.close()
@@ -646,7 +646,6 @@ const scrapeMemberGroupPage = () => {
         }
 
         data.push({ idAccount, account, urlAvatar: urlImage, urlFacebook, group: 'LOGISTICS VIETNAM' })
-        console.log('data member group page: ', data)
 
         // Lazy load: re-query to capture items that were rendered after scrolling
         if (listItems.length < 25000) {

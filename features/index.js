@@ -32,7 +32,8 @@ const postMemberOfGroupPage = () => {
 
         // Scrape text content of the element
         await delay(1000)
-        let textContent = elementArr[i]?.querySelectorAll('.html-div.xdj266r.x14z9mp.xat24cr.x1lziwak.x1l90r2v.xv54qhq.xf7dkkf.x1iorvi4')?.[0]?.textContent
+        let textContent = elementArr[i]?.querySelectorAll('[data-ad-rendering-role="story_message"]')?.[0]?.textContent
+        if (!textContent) textContent = elementArr[i]?.querySelectorAll('.x6s0dn4.x78zum5.xdt5ytf.x5yr21d.x1o0tod.xl56j7k.x10l6tqk.x13vifvy.xh8yej3')?.[0]?.textContent
         if (!textContent) textContent = elementArr[i]?.querySelectorAll('div.html-div.xdj266r.x14z9mp.xat24cr.x1lziwak.xexx8yu.xyri2b.x18d9i69.x1c1uobl > div > div > div > div > div > span > div')?.[3]?.textContent
         if (!textContent) textContent = elementArr[i]?.querySelectorAll('div.html-div.xdj266r.x14z9mp.xat24cr.x1lziwak.xexx8yu.xyri2b.x18d9i69.x1c1uobl > div > div > div > div > div > span > div')?.[2]?.textContent
         if (!textContent) textContent = elementArr[i]?.querySelectorAll('div > div > span > div.html-div.xdj266r.x14z9mp.xat24cr.x1lziwak.xexx8yu.xyri2b.x18d9i69.x1c1uobl')?.[2]?.textContent
@@ -52,18 +53,20 @@ const postMemberOfGroupPage = () => {
         console.log('textContent: ', textContent)
         console.log('textAccount: ', textAccount)
 
-        data.push({
-          content: textContent,
-          group: 'LOGISTICS VIETNAM',
-          account: textAccount,
-          idAccount: textIdAccount,
-          urlAvatar: urlAvatar,
-          urlFacebook: urlFacebook
-        })
+        if (textAccount !== '0') {
+          data.push({
+            content: textContent,
+            group: 'LOGISTICS VIETNAM',
+            account: textAccount,
+            idAccount: textIdAccount,
+            urlAvatar: urlAvatar,
+            urlFacebook: urlFacebook
+          })
+        }
         console.log('data: ', i, data)
         console.log('elementArr: ', elementArr.length)
 
-        if (elementArr.length < 500) {
+        if (elementArr.length < 1000) {
           await delay(2000)
           elementArr = documentPage?.querySelectorAll('.x1n2onr6.xh8yej3.x1ja2u2z.xod5an3')
           console.log('Length of page array: ', elementArr.length)
